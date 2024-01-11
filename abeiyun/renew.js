@@ -1,12 +1,13 @@
 /*
  * @Author: David
  * @Date: 2024-01-05 10:57:48
- * @LastEditTime: 2024-01-05 15:05:43
+ * @LastEditTime: 2024-01-11 10:09:15
  * @LastEditors: David
  * @Description: 阿贝云自动续期脚本 
  * @FilePath: /JSScript/abeiyun/renew.js
  * 可以输入预定的版权声明、个性签名、空行等
  */
+require('dotenv').config();
 const puppeteer = require('puppeteer');
 const path = require('path');
 
@@ -15,7 +16,6 @@ async function main() {
   const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
   let disUrl = await goToBbs(page)
-  console.log(disUrl)
   await submitToAbCloud(page, disUrl)
   await browser.close();
 }
@@ -27,10 +27,10 @@ function goToBbs(page) {
     await loginBtn.click()
     await page.waitForSelector(`div.ModalManager.modal`)
     const username = await page.$(`input[name=identification]`);
-    await username.type('');
+    await username.type(process.env.BBS_NAME, 1000);
 
     const password = await page.$(`input[name=password]`);
-    await password.type(``);
+    await password.type(process.env.BBS_PASSWORD, 1000);
     const submitBtn = await page.$(`button[type=submit]`)
     await submitBtn.click()
     await page.waitForSelector(`li.item-session`)
@@ -53,10 +53,10 @@ function submitToAbCloud(page, disUrl) {
   return new Promise(async (resolve) => {
     await page.goto('https://www.abeiyun.com/login/')
     const userName = await page.$(`input#userName`)
-    await userName.type('')
+    await userName.type(process.env.ABEYUN_NAME)
     const password = await page.$(`input#passwordInput`);
-    await password.type(``);
-    await page.$eval(`input#loginSubmit`, el => el.click())
+    await password.type(`EZyiT2gqKZZZtUW`);
+    await page.$eval(process.env.ABEYUN_PASSWORD, el => el.click())
     await page.waitForNavigation({
       waitUntil: `load`,
     })
@@ -99,6 +99,7 @@ function submitToAbCloud(page, disUrl) {
       const submitBtn = btns.find(btn => btn.innerText.includes('提交'));
       if (submitBtn) {
         submitBtn.click()
+        resolve(true)
       }
     })
   })
