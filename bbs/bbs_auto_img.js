@@ -1,10 +1,10 @@
 /*
  * @Author: David
  * @Date: 2024-01-05 15:43:33
- * @LastEditTime: 2024-01-05 15:43:36
+ * @LastEditTime: 2024-01-15 10:49:09
  * @LastEditors: David
  * @Description: 
- * @FilePath: /JSScript/bbs/bbs_auto_img.js
+ * @FilePath: /bbs/bbs_auto_img.js
  * 可以输入预定的版权声明、个性签名、空行等
  */
 const puppeteer = require('puppeteer')
@@ -53,7 +53,7 @@ const openPage = (page) => {
       tempImages.push(...images)
 
       let aLinks = await page.$$eval(`a.pagination-link`, els => Array.from(new Set(els.map(el => el.href))))
-      for (let i = 1; i < aLinks.length; i++) {
+      for (let i = 1; i < 1; i++) {
         await page.goto(aLinks[i]).then(async () => {
           let _images = await page.$$eval(`p > img`, els => els.map(el => el.src))
           tempImages.push(..._images)
@@ -88,13 +88,13 @@ const saveImages = (_images) => {
 }
 
 const openBbs = async (page, arr) => {
-  await page.goto("https://bbs.micromatrix.eu.org")
+  await page.goto("https://bbs.micromatrix.org")
   await page.waitForSelector(`li.item-logIn`)
   const loginBtn = await page.$(`li.item-logIn`)
   await loginBtn.click()
   await page.waitForSelector(`div.ModalManager.modal`)
   const username = await page.$(`input[name=identification]`);
-  await username.type("");
+  await username.type(``);
 
   const password = await page.$(`input[name=password]`);
   await password.type(``);
@@ -117,18 +117,31 @@ const newDis = (page, title, str) => {
     await page.$eval(`li.item-newDiscussion > button`, el => el.click())
     await page.waitForSelector(`div#composer`)
     const titleInput = await page.$(`h3 > input.FormControl`)
-    await titleInput.type(title)
+    await titleInput.type(title, { delay: 100 })
     await page.waitForTimeout(1000);
     const contentInput = await page.$(`textarea.FormControl.Composer-flexible.TextEditor-editor`)
     await contentInput.type(str)
+    await page.waitForTimeout(1000);
 
     await page.$eval(`li.item-submit > button`, el => el.click())
     await page.waitForSelector(`ul.TagSelectionModal-list.SelectTagList`, { visible: true })
-    await page.$eval(`li[data-index='4']`, el => el.click())
-    await page.waitForSelector(`span.TagsInput-tag`)
+    await page.$$eval('li[data-index] span.SelectTagListItem-name', spans => {
+      const serverSpan = spans.find(span => span.innerText.includes('cosplay'));
+      if (serverSpan) {
+        serverSpan.click();
+      }
+    });
+    await page.$$eval('li[data-index] span.SelectTagListItem-name', spans => {
+      const serverSpan = spans.find(span => span.innerText.includes('过期米线线喵'));
+      if (serverSpan) {
+        serverSpan.click();
+      }
+    });
+
+    await page.waitForTimeout(1000);
     await page.$eval(`button[type='submit']`, el => el.click())
     await page.waitForSelector(`h1.DiscussionHero-title`)
-    await page.goBack()
+    await page.waitForTimeout(2000);
     resolve(true)
   })
 }
