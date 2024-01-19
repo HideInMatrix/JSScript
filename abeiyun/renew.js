@@ -1,7 +1,7 @@
 /*
  * @Author: David
  * @Date: 2024-01-05 10:57:48
- * @LastEditTime: 2024-01-11 10:09:15
+ * @LastEditTime: 2024-01-19 16:22:33
  * @LastEditors: David
  * @Description: 阿贝云自动续期脚本 
  * @FilePath: /JSScript/abeiyun/renew.js
@@ -21,7 +21,7 @@ async function main() {
 }
 function goToBbs(page) {
   return new Promise(async (resolve) => {
-    await page.goto('https://bbs.micromatrix.eu.org');
+    await page.goto('https://bbs.micromatrix.org');
     await page.waitForSelector(`li.item-logIn`)
     const loginBtn = await page.$(`li.item-logIn`)
     await loginBtn.click()
@@ -54,9 +54,11 @@ function submitToAbCloud(page, disUrl) {
     await page.goto('https://www.abeiyun.com/login/')
     const userName = await page.$(`input#userName`)
     await userName.type(process.env.ABEYUN_NAME)
+    await page.waitForTimeout(1000);
     const password = await page.$(`input#passwordInput`);
-    await password.type(`EZyiT2gqKZZZtUW`);
-    await page.$eval(process.env.ABEYUN_PASSWORD, el => el.click())
+    await password.type(process.env.ABEYUN_PASSWORD, { delay: 100 });
+    await page.waitForTimeout(1000);
+    await page.$eval(`input#loginSubmit`, el => el.click())
     await page.waitForNavigation({
       waitUntil: `load`,
     })
@@ -99,9 +101,9 @@ function submitToAbCloud(page, disUrl) {
       const submitBtn = btns.find(btn => btn.innerText.includes('提交'));
       if (submitBtn) {
         submitBtn.click()
-        resolve(true)
       }
     })
+    resolve(true)
   })
 }
 
@@ -120,6 +122,13 @@ function newDis(page, title, str) {
     await page.waitForSelector(`ul.TagSelectionModal-list.SelectTagList`, { visible: true })
     await page.$$eval('li[data-index] span.SelectTagListItem-name', spans => {
       const serverSpan = spans.find(span => span.innerText.includes('服务器'));
+      if (serverSpan) {
+        serverSpan.click();
+      }
+    });
+    await page.waitForTimeout(1000);
+    await page.$$eval('li[data-index] span.SelectTagListItem-name', spans => {
+      const serverSpan = spans.find(span => span.innerText.includes('广告'));
       if (serverSpan) {
         serverSpan.click();
       }
