@@ -4,6 +4,8 @@ const html = `
     <link rel="icon" href="//micromatrix.eu.org/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>What's the link?</title>
+    <script src="https://unpkg.com/viewerjs/dist/viewer.min.js"></script> <!-- 引入 Viewer.js 库 -->
+    <link href="https://unpkg.com/viewerjs/dist/viewer.min.css" rel="stylesheet"> <!-- 引入 Viewer.js 样式 -->
     <style>
       #app {
         max-width: 1280px;
@@ -189,6 +191,23 @@ const html = `
                photos
               +'</div>'
             +'</div>';
+            // 使用 Viewer.js 为图片添加预览功能
+            const viewer = new Viewer(document.querySelector('.image-list'), {
+              inline: false,
+              button: true,
+              navbar: false,
+              title: false,
+              toolbar: true,
+              tooltip: true,
+              movable: false,
+              zoomable: true,
+              rotatable: false,
+              scalable: false,
+              transition: true,
+              fullscreen: false,
+              keyboard: true,
+              url: 'src'
+            });
           }
           // console.log(this.responseText)
         };
